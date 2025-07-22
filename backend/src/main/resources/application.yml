@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/plain_db
+    url: jdbc:postgresql://localhost:5432/plan_db
     username: postgres
     password: postgres
   jpa:
@@ -10,5 +10,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
   server:
     port: 8081
