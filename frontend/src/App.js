@@ -136,7 +136,7 @@ function App() {
         <div style={{ flex: 1, paddingLeft: "1rem", borderLeft: "2px solid #eee" }}>
           <h3>🕒 타임라인</h3>
           <ul style={{ listStyle: "none", padding: 0 }}>
-            {plans
+            {filteredPlans
               .slice()
               .sort((a, b) => new Date(a.date) - new Date(b.date))
               .map((plan) => (
