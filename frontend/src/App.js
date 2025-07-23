@@ -8,10 +8,13 @@ function App() {
   const [date, setDate] = useState("");
   const [editId, setEditId] = useState(null);
 
+  const [search, setSearch] = useState("");
+
   // 전체 일정 조회
   const loadPlans = async () => {
     const res = await api.get("");
-    setPlans(res.data);
+    const sorted = res.data.sort((a,b) => new Date(b.date) - new Date(a.date));
+    setPlans(sorted);
   };
 
   // 일정 추가
@@ -59,6 +62,11 @@ function App() {
     setDate("");
   }
 
+  //검색기능
+  const filteredPlans = plans.filter(plan =>
+    plan.title.toLowerCase().includes(search.toLowerCase())
+  )
+
   useEffect(() => {
     loadPlans();
   }, []);
@@ -96,18 +104,56 @@ function App() {
       )}
       <hr />
 
-      <h3>등록된 일정</h3>
-      <ul>
-        {plans.map((plan) => (
-          <li key={plan.id}>
-            <b>{plan.title}</b> - {plan.date} <br />
-            {plan.description}
-            <br />
-            <button onClick={() => deletePlan(plan.id)}>삭제</button>
-            <button onClick={() => startEdit(plan)}>수정</button>
-          </li>
-        ))}
-      </ul>
+
+      {/* 카드 + 타임라인 레이아웃 */}
+      <div style={{ display: "flex", gap: "2rem", alignItems: "flex-start" }}>
+        {/* 왼쪽 카드 목록 */}
+        <div style={{ flex: 1 }}>
+          <h3>🗂️ 일정 목록</h3>
+          <h3>검색 : <input type="text" placeholder="제목검색" value={search} onChange={(e) => setSearch(e.target.value)}/></h3>
+          {plans.length === 0 && <p>등록된 일정이 없습니다.</p>}
+          {filteredPlans.map((plan) => (
+            <div
+              key={plan.id}
+              style={{
+                border: "1px solid #ccc",
+                borderRadius: "8px",
+                padding: "1rem",
+                marginBottom: "1rem",
+                boxShadow: "2px 2px 5px rgba(0,0,0,0.05)",
+              }}
+            >
+              <h4>{plan.title}</h4>
+              <p><b>📆 {plan.date}</b></p>
+              <p>{plan.description}</p>
+              <button onClick={() => deletePlan(plan.id)}>삭제</button>
+              <button onClick={() => startEdit(plan)}>수정</button>
+            </div>
+          ))}
+        </div>
+
+        {/* 오른쪽 타임라인 */}
+        <div style={{ flex: 1, paddingLeft: "1rem", borderLeft: "2px solid #eee" }}>
+          <h3>🕒 타임라인</h3>
+          <ul style={{ listStyle: "none", padding: 0 }}>
+            {plans
+              .slice()
+              .sort((a, b) => new Date(a.date) - new Date(b.date))
+              .map((plan) => (
+                <li
+                  key={plan.id}
+                  style={{
+                    marginBottom: "1rem",
+                    paddingLeft: "0.5rem",
+                    borderLeft: "4px solid #2196f3",
+                  }}
+                >
+                  <strong>{plan.date}</strong> - {plan.title}
+                </li>
+              ))}
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }
