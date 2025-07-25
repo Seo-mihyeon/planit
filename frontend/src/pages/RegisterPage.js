@@ -12,7 +12,7 @@ function RegisterPage() {
   const register = async () => {
     try {
       await api.post("/api/users/register", { username, password });
-      alert("회원가입 성공!");
+      await navigate('/login')
     } catch (error) {
       alert("회원가입 실패!");
     }

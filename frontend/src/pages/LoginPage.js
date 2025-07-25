@@ -11,7 +11,7 @@ function LoginPage() {
   const login = async () => {
     try {
       const res = await api.post("/api/users/login", { username, password });
-      alert(res.data); // 로그인 성공/실패 메시지
+      await navigate('/plans');
     } catch (error) {
       alert("로그인 실패!");
     }

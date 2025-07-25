@@ -12,7 +12,7 @@ function PlanPage() {
 
   // 전체 일정 조회
   const loadPlans = async () => {
-    const res = await api.get("");
+    const res = await api.get("/api/plans");
     const sorted = res.data.sort((a,b) => new Date(b.date) - new Date(a.date));
     setPlans(sorted);
   };
