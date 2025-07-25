@@ -24,6 +24,10 @@ public class Plan {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by") // DB 컬럼 이름
+    private User createdBy;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

@@ -9,14 +9,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
-import lombok.RequiredArgsConstructor;
-
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.plainit.backend.entity.Plan;
 import com.plainit.backend.repository.PlanRepository;
+import com.plainit.backend.repository.UserRepository;
+import com.plainit.backend.security.JwtUtil;
+import com.plainit.backend.entity.User;
+
+import lombok.RequiredArgsConstructor;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -25,14 +28,26 @@ import com.plainit.backend.repository.PlanRepository;
 public class PlanController {
 
     private final PlanRepository planRepository;
+    private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
 
     @GetMapping
-    public List<Plan> getAllPlans(){
-        return planRepository.findAll();
+    public List<Plan> getAllPlans(@RequestHeader("Authorization") String token){
+        String jwt = token.substring(7);
+        String username = jwtUtil.extractUsername(jwt);
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("사용자 없음"));
+
+        return planRepository.findByCreatedBy(user);
     }
 
     @PostMapping
-    public Plan createPlan(@RequestBody Plan plan){
+    public Plan createPlan(@RequestBody Plan plan, @RequestHeader("Authorization") String token){
+        String jwt = token.substring(7);
+        String username = jwtUtil.extractUsername(jwt);
+
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("사용자 없음"));
+        
+        plan.setCreatedBy(user);
         return planRepository.save(plan);
     }
 

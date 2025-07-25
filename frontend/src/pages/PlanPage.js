@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import api from "../api";
+import { useNavigate } from "react-router-dom";
 
 function PlanPage() {
+  const navigate = useNavigate();
   const [plans, setPlans] = useState([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -10,27 +12,52 @@ function PlanPage() {
 
   const [search, setSearch] = useState("");
 
+  const token = localStorage.getItem('token');
+  
+
   // 전체 일정 조회
   const loadPlans = async () => {
-    const res = await api.get("/api/plans");
-    const sorted = res.data.sort((a,b) => new Date(b.date) - new Date(a.date));
-    setPlans(sorted);
+
+    try {
+      const res = await api.get('/api/plans',{
+        headers: {Authorization: `Bearer ${token}`}
+      });
+      const sorted = res.data.sort((a,b) => new Date(b.date) - new Date(a.date));
+      setPlans(sorted);
+    } catch (error) {
+      console.error('일정 조회 실패', error);
+    }
+
   };
 
   // 일정 추가
   const addPlan = async () => {
     if (!title || !date) return alert("제목과 날짜를 입력하세요.");
-    await api.post("", { title, description, date });
-    setTitle("");
-    setDescription("");
-    setDate("");
-    loadPlans();
+
+    try {
+      await api.post('/api/plans', {title, description, date}, {
+        headers : {Authorization : `Bearer ${token}`}
+      });
+
+      setTitle('');
+      setDescription('');
+      setDate('');
+      loadPlans();
+    } catch (error) {
+      console.error('일정 추가 실패', error);
+    }
   };
 
   // 일정삭제
   const deletePlan = async (id) =>{
-    await api.delete(`/${id}`)
-    loadPlans();
+    try {
+      await api.delete(`/api/plans/${id}`, {
+        headers : {Authorization: `Bearer ${token}`}
+      })
+      loadPlans();
+    } catch (error) {
+      console.error('일정 삭제 실패', error);
+    }
   }
 
   // 일정수정
@@ -46,12 +73,20 @@ function PlanPage() {
     else if (!description) return alert("내용을 입력해주세요.");
     else if (!date) return alert("날짜를 입력해주세요.");
 
-    await api.put(`${editId}`, {title, description, date});
-    setTitle("");
-    setDescription("");
-    setDate("");
-    setEditId(null);
-    loadPlans();
+    try {
+      await api.put(`/api/plans/${editId}`, {title, description, date},{
+        headers : {Authorization : `Bearer ${token}`}
+      })
+      setTitle("");
+      setDescription("");
+      setDate("");
+      setEditId(null);
+      loadPlans();
+    } catch (error) {
+      console.error('일정 수정 실패')   
+    }
+
+    
   }
 
   //일정수정취소
@@ -67,12 +102,24 @@ function PlanPage() {
     plan.title.toLowerCase().includes(search.toLowerCase())
   )
 
+  const login = async () => {
+    navigate("/login")
+  }
+
   useEffect(() => {
+    if (!token){
+      alert('일정관리 접근 실패!')
+      navigate('/login');
+      return;
+    }
     loadPlans();
-  }, []);
+  }, [token]);
 
   return (
     <div style={{ padding: "2rem" }}>
+      <div>
+        <button onClick={login}>메인화면</button>
+      </div>
       <h2>📅 일정 등록</h2>
       <input
         type="text"

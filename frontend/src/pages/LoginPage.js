@@ -11,7 +11,10 @@ function LoginPage() {
   const login = async () => {
     try {
       const res = await api.post("/api/users/login", { username, password });
-      await navigate('/plans');
+      const token = res.data.token;
+
+      localStorage.setItem('token', token);
+      navigate('/plans');
     } catch (error) {
       alert("로그인 실패!");
     }
