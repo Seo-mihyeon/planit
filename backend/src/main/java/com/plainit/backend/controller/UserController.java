@@ -1,4 +1,4 @@
-package com.plainit.backend.controller;
+package com.planit.backend.controller;
 
 import java.util.Collections;
 
@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.plainit.backend.entity.User;
-import com.plainit.backend.repository.UserRepository;
-import com.plainit.backend.security.JwtUtil;
+import com.planit.backend.entity.User;
+import com.planit.backend.repository.UserRepository;
+import com.planit.backend.security.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
 

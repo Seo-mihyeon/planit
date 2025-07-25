@@ -1,4 +1,4 @@
-package com.plainit.backend.security;
+package com.planit.backend.security;
 
 import java.security.Key;
 import java.util.Date;

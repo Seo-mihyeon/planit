@@ -1,4 +1,4 @@
-package com.plainit.backend.entity;
+package com.planit.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

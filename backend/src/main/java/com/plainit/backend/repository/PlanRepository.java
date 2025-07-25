@@ -1,11 +1,11 @@
-package com.plainit.backend.repository;
+package com.planit.backend.repository;
 
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.plainit.backend.entity.Plan;
-import com.plainit.backend.entity.User;
+import com.planit.backend.entity.Plan;
+import com.planit.backend.entity.User;
 
 public interface PlanRepository extends JpaRepository<Plan, Long>{
     

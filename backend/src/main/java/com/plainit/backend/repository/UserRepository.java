@@ -1,6 +1,6 @@
-package com.plainit.backend.repository;
+package com.planit.backend.repository;
 
-import com.plainit.backend.entity.User;
+import com.planit.backend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
