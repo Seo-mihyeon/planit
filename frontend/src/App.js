@@ -7,11 +7,11 @@ import PlanPage from "./pages/PlanPage";
 function App() {
   return (
     <Router>
-      <nav>
+      {/* <nav>
         <Link to="/login">로그인</Link> | 
         <Link to="/register">회원가입</Link> | 
         <Link to="/plans">일정 관리</Link>
-      </nav>
+      </nav> */}
       <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<LoginPage />} />
