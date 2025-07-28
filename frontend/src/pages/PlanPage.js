@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
+import '../css/PlanPage.css'
 
 function PlanPage() {
   const navigate = useNavigate();
   const [plans, setPlans] = useState([]);
+  const [category, setCategory] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
@@ -32,13 +34,17 @@ function PlanPage() {
 
   // 일정 추가
   const addPlan = async () => {
-    if (!title || !date) return alert("제목과 날짜를 입력하세요.");
+    if (!title) return alert("제목을 입력하세요.");
+    else if (!description) return alert("내용을 입력하세요.");
+    else if (!date) return alert("날짜를 입력하세요.");
+    else if (!category) return alert("분류를 입력하세요.")
 
     try {
-      await api.post('/api/plans', {title, description, date}, {
+      await api.post('/api/plans', {category, title, description, date}, {
         headers : {Authorization : `Bearer ${token}`}
       });
 
+      setCategory('');
       setTitle('');
       setDescription('');
       setDate('');
@@ -62,6 +68,7 @@ function PlanPage() {
 
   // 일정수정
   const startEdit = (plan) =>{
+    setCategory(plan.category);
     setEditId(plan.id);
     setTitle(plan.title);
     setDescription(plan.description);
@@ -72,11 +79,13 @@ function PlanPage() {
     if (!title) return alert("제목을 입력해주세요.");
     else if (!description) return alert("내용을 입력해주세요.");
     else if (!date) return alert("날짜를 입력해주세요.");
+    else if (!category) return alert("분류를 입력해주세요.")
 
     try {
-      await api.put(`/api/plans/${editId}`, {title, description, date},{
+      await api.put(`/api/plans/${editId}`, {category, title, description, date},{
         headers : {Authorization : `Bearer ${token}`}
       })
+      setCategory("");
       setTitle("");
       setDescription("");
       setDate("");
@@ -86,12 +95,12 @@ function PlanPage() {
       console.error('일정 수정 실패')   
     }
 
-    
   }
 
   //일정수정취소
   const cancelPlan = () => {
     setEditId(null);
+    setCategory("");
     setTitle("");
     setDescription("");
     setDate("");
@@ -102,10 +111,6 @@ function PlanPage() {
     plan.title.toLowerCase().includes(search.toLowerCase())
   )
 
-  const login = async () => {
-    navigate("/login")
-  }
-
   useEffect(() => {
     if (!token){
       alert('일정관리 접근 실패!')
@@ -115,50 +120,65 @@ function PlanPage() {
     loadPlans();
   }, [token]);
 
+  const inputStyle = {
+    padding: "10px",
+    margin: "5px 0",
+    width: "100%",
+    borderRadius: "6px",
+    border: "1px solid #ccc",
+    fontSize: "1rem"
+  };
+
+  const buttonStyle = {
+    padding: "10px 20px",
+    margin: "10px 5px 20px 0",
+    backgroundColor: "#4CAF50",
+    color: "white",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer"
+  };
+
   return (
-    <div style={{ padding: "2rem" }}>
-      <div>
-        <button onClick={login}>메인화면</button>
+    <div style={{ padding: "2rem", maxWidth: "1000px", margin: "0 auto" }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "1rem" }}>
+        <button className="btn btn-logout" onClick={() => {
+          localStorage.removeItem("token");
+          navigate("/login", { replace: true });
+        }}>
+          로그아웃
+        </button>
       </div>
+
       <h2>📅 일정 등록</h2>
-      <input
-        type="text"
-        placeholder="제목"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
-      <br />
-      <input
-        type="text"
-        placeholder="내용"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
-      <br />
-      <input
-        type="date"
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-      />
-      <br />
+      <input className="input-field" type="text" placeholder="분류" value={category} onChange={(e) => setCategory(e.target.value)} />
+      <input className="input-field" type="text" placeholder="제목" value={title} onChange={(e) => setTitle(e.target.value)} />
+      <input className="input-field" type="text" placeholder="내용" value={description} onChange={(e) => setDescription(e.target.value)} />
+      <input className="input-field" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
       {editId ? (
         <>
-        <button onClick={updatePlan}>수정 완료</button>
-        <button onClick={cancelPlan}>수정 취소</button>
+          <button className="btn" onClick={updatePlan}>수정 완료</button>
+          <button className="btn btn-delete" onClick={cancelPlan}>수정 취소</button>
         </>
       ) : (
-        <button onClick={addPlan}>등록</button>
+        <button className="btn" onClick={addPlan}>등록</button>
       )}
+
       <hr />
 
+      <h3>🔍 검색</h3>
+      <input
+        type="text"
+        placeholder="제목 검색"
+        className="input-field"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
 
-      {/* 카드 + 타임라인 레이아웃 */}
       <div style={{ display: "flex", gap: "2rem", alignItems: "flex-start" }}>
-        {/* 왼쪽 카드 목록 */}
         <div style={{ flex: 1 }}>
           <h3>🗂️ 일정 목록</h3>
-          <h3>검색 : <input type="text" placeholder="제목검색" value={search} onChange={(e) => setSearch(e.target.value)}/></h3>
-          {plans.length === 0 && <p>등록된 일정이 없습니다.</p>}
+          {filteredPlans.length === 0 && <p>등록된 일정이 없습니다.</p>}
           {filteredPlans.map((plan) => (
             <div
               key={plan.id}
@@ -167,19 +187,18 @@ function PlanPage() {
                 borderRadius: "8px",
                 padding: "1rem",
                 marginBottom: "1rem",
-                boxShadow: "2px 2px 5px rgba(0,0,0,0.05)",
+                boxShadow: "2px 2px 5px rgba(0,0,0,0.05)"
               }}
             >
-              <h4>{plan.title}</h4>
+              <h4>{plan.title} <span style={{ color: '#888', fontSize: '0.9rem' }}>({plan.category})</span></h4>
               <p><b>📆 {plan.date}</b></p>
               <p>{plan.description}</p>
-              <button onClick={() => deletePlan(plan.id)}>삭제</button>
-              <button onClick={() => startEdit(plan)}>수정</button>
+              <button onClick={() => deletePlan(plan.id)} style={{ ...buttonStyle, backgroundColor: '#f44336' }}>삭제</button>
+              <button onClick={() => startEdit(plan)} style={{ ...buttonStyle, backgroundColor: '#2196F3' }}>수정</button>
             </div>
           ))}
         </div>
 
-        {/* 오른쪽 타임라인 */}
         <div style={{ flex: 1, paddingLeft: "1rem", borderLeft: "2px solid #eee" }}>
           <h3>🕒 타임라인</h3>
           <ul style={{ listStyle: "none", padding: 0 }}>
@@ -192,10 +211,10 @@ function PlanPage() {
                   style={{
                     marginBottom: "1rem",
                     paddingLeft: "0.5rem",
-                    borderLeft: "4px solid #2196f3",
+                    borderLeft: "4px solid #2196f3"
                   }}
                 >
-                  <strong>{plan.date}</strong> - {plan.title}
+                  <strong>{plan.date}</strong> - [{plan.category}] {plan.title}
                 </li>
               ))}
           </ul>
@@ -204,5 +223,6 @@ function PlanPage() {
     </div>
   );
 }
+
 
 export default PlanPage;

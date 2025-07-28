@@ -54,6 +54,7 @@ public class PlanController {
     @PutMapping("/{id}")
     public Plan updatePlan(@PathVariable Long id, @RequestBody Plan updatedPlan){
         Plan plan = planRepository.findById(id).orElseThrow();
+        plan.setCategory(updatedPlan.getCategory());
         plan.setTitle(updatedPlan.getTitle());
         plan.setDescription(updatedPlan.getDescription());
         plan.setDate(updatedPlan.getDate());

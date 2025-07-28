@@ -19,6 +19,8 @@ public class Plan {
     private String title;
     private String description;
 
+    private String category;
+
     private LocalDate date;
 
     private LocalDateTime createdAt;
